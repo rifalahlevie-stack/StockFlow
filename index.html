@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>StockFlow Elite - Dashboard Fix</title>
+    <title>StockFlow User - 3 Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; -webkit-tap-highlight-color: transparent; }
         body.modal-open { overflow: hidden; overscroll-behavior: none; }
         .glass-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
         .item-card { background: white; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(0,0,0,0.03); }
@@ -24,44 +24,38 @@
 
     <header class="glass-header text-white p-6 pb-8 rounded-b-[40px] sticky top-0 z-40 shadow-xl">
         <div class="flex justify-between items-center mb-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"><i class="fas fa-bolt text-sm"></i></div>
-                <h1 class="text-xl font-extrabold tracking-tight italic">StockFlow <span class="text-indigo-400">Elite</span></h1>
-            </div>
-            <button onclick="loadData()" class="w-11 h-11 bg-white/10 rounded-2xl flex items-center justify-center active:rotate-180 transition-all duration-500">
-                <i class="fas fa-redo-alt text-xs"></i>
-            </button>
+            <h1 class="text-xl font-extrabold italic tracking-tight">StockFlow <span class="text-indigo-400">User</span></h1>
+            <button onclick="loadData()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center"><i class="fas fa-redo-alt text-xs"></i></button>
         </div>
 
-        <div class="relative bg-black/20 p-1 rounded-2xl flex gap-1">
-            <button onclick="switchTab('all')" id="tabAll" class="flex-1 py-3 text-[10px] font-black uppercase tracking-widest z-10 rounded-xl bg-indigo-600 text-white shadow-lg transition-all">DASHBOARD STOK</button>
-            <button onclick="switchTab('expired')" id="tabExp" class="flex-1 py-3 text-[10px] font-black uppercase tracking-widest z-10 text-slate-400 transition-all">BELUM ADA EXP</button>
+        <div class="relative bg-black/20 p-1 rounded-2xl flex gap-1 text-[9px] font-black uppercase tracking-tighter">
+            <button onclick="switchTab('all')" id="tabAll" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white shadow-lg transition-all">Semua</button>
+            <button onclick="switchTab('audit')" id="tabAudit" class="flex-1 py-3 rounded-xl text-slate-400 transition-all">Input Exp</button>
+            <button onclick="switchTab('result')" id="tabResult" class="flex-1 py-3 rounded-xl text-slate-400 transition-all">Hasil Stok</button>
         </div>
     </header>
 
     <main class="p-6">
-        <div class="mb-8 relative">
+        <div class="mb-6 relative">
             <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Cari Nama atau ID..." 
-                   class="w-full bg-white border-none rounded-3xl py-5 pl-14 pr-6 shadow-sm font-bold text-sm focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+            <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Cari Nama atau ID..." class="w-full bg-white border-none rounded-3xl py-4.5 pl-14 shadow-sm font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
-
         <div id="itemList" class="space-y-4">
-            <div class="text-center py-20 opacity-20"><i class="fas fa-circle-notch fa-spin text-4xl mb-4"></i><p class="font-bold tracking-widest text-[10px]">SYNCING...</p></div>
+            <div class="text-center py-20 opacity-20"><i class="fas fa-circle-notch fa-spin text-3xl"></i></div>
         </div>
     </main>
 
     <div id="modalOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-end opacity-0 transition-opacity duration-300">
-        <div id="modalContent" class="sheet-container bg-white w-full rounded-t-[50px] p-10 pb-12 shadow-2xl sheet-down">
+        <div id="modalContent" class="sheet-container bg-white w-full rounded-t-[50px] p-10 pb-12 sheet-down">
             <div class="drag-handle"></div>
             <div class="mb-10 text-center">
-                <span id="mIdDisplay" class="bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full text-[10px] font-black border border-indigo-100 uppercase tracking-widest italic">PRODUCT ID</span>
-                <h3 id="mNama" class="text-2xl font-black text-slate-900 mt-5 leading-tight tracking-tight uppercase">Nama Produk</h3>
+                <span id="mIdDisplay" class="bg-indigo-50 text-indigo-600 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">#ID</span>
+                <h3 id="mNama" class="text-2xl font-black text-slate-900 mt-5 leading-tight uppercase">Produk</h3>
             </div>
             <form id="updateForm" class="space-y-8">
                 <input type="hidden" id="formId">
                 <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center mb-3 italic">Jumlah Stok Saat Ini</label>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center mb-3 italic">Update Stok Fisik</label>
                     <div class="flex items-center justify-between bg-slate-50 rounded-[35px] p-2 border border-slate-100 shadow-inner">
                         <button type="button" onclick="adjustStok(-1)" class="w-16 h-16 bg-white rounded-[26px] shadow-sm flex items-center justify-center text-indigo-600 text-xl active:scale-75 transition-all"><i class="fas fa-minus"></i></button>
                         <input type="number" id="fStok" class="w-24 bg-transparent text-center font-black text-4xl text-slate-900 border-none focus:ring-0">
@@ -69,10 +63,10 @@
                     </div>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center mb-3 italic">Atur Tanggal Kadaluarsa</label>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-center mb-3 italic">Tentukan Tanggal Expired</label>
                     <input type="date" id="fExp" class="w-full bg-slate-50 p-5 rounded-[28px] font-bold text-center text-slate-700 border border-slate-100 focus:ring-4 focus:ring-indigo-500/10 outline-none">
                 </div>
-                <button type="submit" id="saveBtn" class="w-full py-6 bg-indigo-600 text-white rounded-[32px] font-black shadow-2xl shadow-indigo-200 text-xs tracking-[3px] mt-4 active:scale-95 transition-all uppercase">Simpan ke Cloud</button>
+                <button type="submit" id="saveBtn" class="w-full py-6 bg-indigo-600 text-white rounded-[32px] font-black shadow-2xl shadow-indigo-200 text-xs tracking-[3px] mt-4 active:scale-95 transition-all uppercase">Simpan Perubahan</button>
             </form>
         </div>
     </div>
@@ -82,67 +76,25 @@
         let allItems = [];
         let currentTab = 'all';
 
-        // --- SWIPE LOGIC ---
+        // SWIPE ENGINE
         const modal = document.getElementById('modalContent');
         const overlay = document.getElementById('modalOverlay');
         let startY = 0, moveY = 0, isDragging = false;
 
-        function dragStart(e) {
-            if (e.target.closest('button') || e.target.closest('input')) return;
-            isDragging = true;
-            startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-            modal.style.transition = 'none';
-            document.body.classList.add('no-select');
-        }
-        function dragMove(e) {
-            if (!isDragging) return;
-            const currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-            moveY = currentY - startY;
-            if (moveY > 0) {
-                if (e.cancelable) e.preventDefault();
-                modal.style.transform = `translateY(${moveY}px)`;
-                overlay.style.opacity = Math.max(0, 1 - (moveY / 500));
-            }
-        }
-        function dragEnd() {
-            if (!isDragging) return;
-            isDragging = false;
-            document.body.classList.remove('no-select');
-            modal.style.transition = 'transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)';
-            if (moveY > 150) closeModal();
-            else { modal.style.transform = 'translateY(0)'; overlay.style.opacity = '1'; }
-            moveY = 0;
-        }
+        function dragStart(e) { if (e.target.closest('button') || e.target.closest('input')) return; isDragging = true; startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY; modal.style.transition = 'none'; document.body.classList.add('no-select'); }
+        function dragMove(e) { if (!isDragging) return; const currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY; moveY = currentY - startY; if (moveY > 0) { if (e.cancelable) e.preventDefault(); modal.style.transform = `translateY(${moveY}px)`; overlay.style.opacity = Math.max(0, 1 - (moveY / 500)); } }
+        function dragEnd() { if (!isDragging) return; isDragging = false; document.body.classList.remove('no-select'); modal.style.transition = 'transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)'; if (moveY > 150) closeModal(); else { modal.style.transform = 'translateY(0)'; overlay.style.opacity = '1'; } moveY = 0; }
+        modal.addEventListener('touchstart', dragStart, { passive: true }); window.addEventListener('touchmove', dragMove, { passive: false }); window.addEventListener('touchend', dragEnd); modal.addEventListener('mousedown', dragStart); window.addEventListener('mousemove', dragMove); window.addEventListener('mouseup', dragEnd);
 
-        modal.addEventListener('touchstart', dragStart, { passive: true });
-        window.addEventListener('touchmove', dragMove, { passive: false });
-        window.addEventListener('touchend', dragEnd);
-        modal.addEventListener('mousedown', dragStart);
-        window.addEventListener('mousemove', dragMove);
-        window.addEventListener('mouseup', dragEnd);
-
-        // --- DATA LOGIC ---
-        async function loadData() {
-            try {
-                const res = await fetch(API_URL);
-                const data = await res.json();
-                allItems = Array.isArray(data) ? data : [];
-                filterData();
-            } catch (e) {
-                document.getElementById('itemList').innerHTML = `<div class="text-center py-20 text-rose-500 font-bold uppercase tracking-widest text-[10px]">Gagal Memuat Data</div>`;
-            }
-        }
+        async function loadData() { try { const res = await fetch(API_URL); allItems = await res.json(); filterData(); } catch (e) { console.error(e); } }
 
         function switchTab(tab) {
             currentTab = tab;
-            const bAll = document.getElementById('tabAll'), bExp = document.getElementById('tabExp');
-            if(tab === 'all') {
-                bAll.className = "flex-1 py-3 text-[10px] font-black uppercase tracking-widest z-10 rounded-xl bg-indigo-600 text-white shadow-lg transition-all";
-                bExp.className = "flex-1 py-3 text-[10px] font-black uppercase tracking-widest z-10 text-slate-400 transition-all";
-            } else {
-                bExp.className = "flex-1 py-3 text-[10px] font-black uppercase tracking-widest z-10 rounded-xl bg-indigo-600 text-white shadow-lg transition-all";
-                bAll.className = "flex-1 py-3 text-[10px] font-black uppercase tracking-widest z-10 text-slate-400 transition-all";
-            }
+            const bA = document.getElementById('tabAll'), bB = document.getElementById('tabAudit'), bC = document.getElementById('tabResult');
+            [bA, bB, bC].forEach(b => { b.className = "flex-1 py-3 rounded-xl text-slate-400 transition-all"; });
+            if(tab === 'all') bA.className = "flex-1 py-3 rounded-xl bg-indigo-600 text-white shadow-lg transition-all";
+            if(tab === 'audit') bB.className = "flex-1 py-3 rounded-xl bg-indigo-600 text-white shadow-lg transition-all";
+            if(tab === 'result') bC.className = "flex-1 py-3 rounded-xl bg-indigo-600 text-white shadow-lg transition-all";
             filterData();
         }
 
@@ -150,126 +102,55 @@
             const q = document.getElementById('searchInput').value.toLowerCase();
             let data = [...allItems];
             
-            // Tab 'all' menampilkan SEMUA. Tab 'expired' hanya yang kosong.
-            if (currentTab === 'expired') {
-                data = data.filter(i => {
-                    const val = i.tgl_expired || i.TglExpired || i.expired || "";
-                    return val === "" || val === "-" || val === null;
-                });
+            if (currentTab === 'audit') {
+                data = data.filter(i => { const ex = i.tgl_expired || i.TglExpired || ""; return ex === "" || ex === "-"; });
+            } else if (currentTab === 'result') {
+                data = data.filter(i => { const ex = i.tgl_expired || i.TglExpired || ""; return ex !== "" && ex !== "-"; });
             }
 
-            const filtered = data.filter(i => 
-                (i.produk || i.Produk || "").toLowerCase().includes(q) || 
-                (i.item_id || i.ItemID || "").toString().toLowerCase().includes(q)
-            );
+            const filtered = data.filter(i => (i.produk || i.Produk || "").toLowerCase().includes(q) || (i.item_id || i.ItemID || "").toString().toLowerCase().includes(q));
             renderItems(filtered);
         }
 
         function renderItems(data) {
             const container = document.getElementById('itemList');
-            if(data.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-300 text-[10px] font-black uppercase tracking-widest italic">Tidak Ada Data Barang</div>`;
-                return;
-            }
+            if(data.length === 0) { container.innerHTML = `<div class="text-center py-20 text-slate-300 text-[10px] font-black uppercase tracking-widest italic">Data Kosong</div>`; return; }
             container.innerHTML = data.map(i => {
-                // Pencarian Nilai Kolom yang Fleksibel
-                const id = i.item_id || i.ItemID || i.id || "-";
-                const nama = i.produk || i.Produk || i.nama || "Tanpa Nama";
-                const stok = parseInt(i.stok || i.Stok || 0);
-                const exp = i.tgl_expired || i.TglExpired || i.expired || "-";
-                const noExp = exp === "" || exp === "-";
-
+                const id = i.item_id || i.ItemID || "-";
+                const nama = i.produk || i.Produk || "N/A";
+                const stok = parseInt(i.stok || i.Stok) || 0;
+                const exp = i.tgl_expired || i.TglExpired || "-";
                 return `
-                <div class="item-card p-6 rounded-[35px] flex items-center justify-between shadow-sm" 
-                     onclick="openModal('${id}', '${nama}', ${stok}, '${exp}')">
+                <div class="item-card p-6 rounded-[35px] flex items-center justify-between shadow-sm" onclick="openModal('${id}', '${nama}', ${stok}, '${exp}')">
                     <div class="flex items-center gap-5">
                         <div class="w-14 h-14 bg-slate-50 text-indigo-500 rounded-3xl flex items-center justify-center text-xl shadow-inner"><i class="fas fa-box"></i></div>
                         <div>
-                            <h4 class="font-bold text-slate-900 text-[15px] leading-tight">${nama}</h4>
-                            <div class="flex flex-col gap-1 mt-2">
-                                <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest">ID: <span class="text-indigo-400">#${id}</span></p>
-                                <p class="text-[10px] font-extrabold ${noExp ? 'text-amber-500 animate-pulse' : 'text-slate-500'}">
-                                    <i class="far fa-calendar-alt mr-1"></i> ${noExp ? 'BELUM INPUT EXPIRED' : exp}
-                                </p>
-                            </div>
+                            <h4 class="font-bold text-slate-900 text-[14px] leading-tight uppercase">${nama}</h4>
+                            <p class="text-[9px] text-slate-400 font-black mt-2 tracking-widest uppercase">ID: #${id} • <span class="${exp === '-' ? 'text-amber-500' : 'text-indigo-400'}">${exp === '-' ? 'Minta Input' : exp}</span></p>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-[8px] font-black text-slate-300 uppercase mb-1">Stock</p>
-                        <span class="text-2xl font-black ${stok < 10 ? 'text-rose-500' : 'text-indigo-600'}">${stok}</span>
-                    </div>
+                    <span class="text-2xl font-black ${stok < 10 ? 'text-rose-500' : 'text-indigo-600'}">${stok}</span>
                 </div>`;
             }).join('');
         }
 
-        function openModal(id, nama, stok, exp) {
-            moveY = 0;
-            modal.style.transition = 'none';
-            modal.style.transform = 'translateY(100%)';
-            overlay.style.opacity = '0';
-
-            document.getElementById('formId').value = id;
-            document.getElementById('mIdDisplay').innerText = "ID: #" + id;
-            document.getElementById('mNama').innerText = nama;
-            document.getElementById('fStok').value = stok;
-            document.getElementById('fExp').value = (exp === "-" || exp === "") ? "" : exp;
-            
-            document.body.classList.add('modal-open');
-            overlay.classList.remove('hidden');
-            setTimeout(() => { 
-                overlay.style.opacity = '1'; 
-                modal.style.transition = 'transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)';
-                modal.classList.replace('sheet-down', 'sheet-up');
-                modal.style.transform = 'translateY(0)';
-            }, 10);
-        }
-
-        function closeModal() {
-            modal.style.transition = 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)';
-            modal.style.transform = 'translateY(105%)';
-            overlay.style.opacity = '0';
-            setTimeout(() => { 
-                overlay.classList.add('hidden'); 
-                document.body.classList.remove('modal-open');
-                modal.classList.replace('sheet-up', 'sheet-down');
-            }, 400);
-        }
-
-        function adjustStok(v) {
-            const el = document.getElementById('fStok');
-            el.value = Math.max(0, parseInt(el.value) + v);
-        }
+        function openModal(id, nama, stok, exp) { moveY = 0; modal.style.transition = 'none'; modal.style.transform = 'translateY(100%)'; overlay.style.opacity = '0'; document.getElementById('formId').value = id; document.getElementById('mIdDisplay').innerText = "ID: #" + id; document.getElementById('mNama').innerText = nama; document.getElementById('fStok').value = stok; document.getElementById('fExp').value = (exp === "-" || exp === "") ? "" : exp; document.body.classList.add('modal-open'); overlay.classList.remove('hidden'); setTimeout(() => { overlay.style.opacity = '1'; modal.style.transition = 'transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)'; modal.classList.replace('sheet-down', 'sheet-up'); modal.style.transform = 'translateY(0)'; }, 10); }
+        function closeModal() { modal.style.transition = 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)'; modal.style.transform = 'translateY(105%)'; overlay.style.opacity = '0'; setTimeout(() => { overlay.classList.add('hidden'); document.body.classList.remove('modal-open'); modal.classList.replace('sheet-up', 'sheet-down'); }, 400); }
+        function adjustStok(v) { const el = document.getElementById('fStok'); el.value = Math.max(0, parseInt(el.value) + v); }
 
         document.getElementById('updateForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn');
-            const id = document.getElementById('formId').value;
-            btn.innerText = 'MENYIMPAN...'; btn.disabled = true;
-
-            // Logika Update: SheetDB butuh Item ID kolom yang sesuai
+            btn.innerText = 'PROSES...'; btn.disabled = true;
             try {
-                // Mencoba update ke kolom item_id atau ItemID (SheetDB sensitif case)
-                const payload = { 
-                    "stok": document.getElementById('fStok').value,
-                    "tgl_expired": document.getElementById('fExp').value 
-                };
-
-                const res = await fetch(`${API_URL}/item_id/${id}`, {
+                const res = await fetch(`${API_URL}/item_id/${document.getElementById('formId').value}`, {
                     method: 'PATCH',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ "stok": document.getElementById('fStok').value, "tgl_expired": document.getElementById('fExp').value })
                 });
-                
-                if(res.ok) {
-                    closeModal();
-                    await loadData(); // Paksa tarik data terbaru
-                } else {
-                    alert("Gagal update. Pastikan kolom di Sheets bernama 'item_id'");
-                }
-            } catch (err) { alert("Kesalahan Jaringan!"); }
-            finally { btn.innerText = 'Simpan ke Cloud'; btn.disabled = false; }
+                if(res.ok) { closeModal(); await loadData(); }
+            } catch (err) { alert("Gagal!"); } finally { btn.innerText = 'Simpan Perubahan'; btn.disabled = false; }
         };
-
         loadData();
     </script>
 </body>
