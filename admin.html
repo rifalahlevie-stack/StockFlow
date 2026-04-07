@@ -3,307 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StockFlow Enterprise - Cloud Admin v3</title>
+    <title>StockFlow Admin - Professional Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f4f7fe; }
-        .sidebar-bg { background-color: #0b1437; }
-        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
     </style>
 </head>
 <body class="text-slate-800">
 
-    <div id="loginScreen" class="fixed inset-0 z-[100] sidebar-bg flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-md rounded-[40px] p-12 shadow-2xl text-center">
-            <div class="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center shadow-xl mx-auto mb-6 text-white text-3xl">
-                <i class="fas fa-database"></i>
-            </div>
-            <h1 class="text-3xl font-extrabold text-[#1b2559] mb-2 tracking-tight">StockFlow DB</h1>
-            <p class="text-slate-400 font-medium mb-10 text-sm italic">Cloud Management Console</p>
-            
-            <form id="loginForm" class="space-y-5 text-left">
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Username</label>
-                    <input type="text" id="username" class="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none font-semibold focus:ring-4 focus:ring-indigo-500/10 mt-1 transition-all" placeholder="admin" required>
-                </div>
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
-                    <input type="password" id="password" class="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none font-semibold focus:ring-4 focus:ring-indigo-500/10 mt-1 transition-all" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-100 transition active:scale-95">
-                    AUTHENTICATE
-                </button>
-                <p id="loginError" class="text-rose-500 text-xs font-bold text-center hidden"><i class="fas fa-exclamation-circle mr-1"></i> Akses Ditolak!</p>
-            </form>
-        </div>
-    </div>
-
-    <div id="mainContent" class="flex h-screen overflow-hidden hidden opacity-0 transition-all duration-700">
-        <aside class="w-80 sidebar-bg text-white flex-shrink-0 hidden lg:flex flex-col shadow-2xl">
-            <div class="p-8 border-b border-white/10 flex items-center gap-4">
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-80 bg-[#0b1437] text-white flex flex-col shadow-2xl">
+            <div class="p-8 border-b border-white/10 flex items-center gap-3">
                 <div class="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-server"></i></div>
-                <span class="text-xl font-bold tracking-tight italic">StockFlow <span class="text-indigo-400">Cloud</span></span>
+                <span class="text-xl font-bold tracking-tight">StockFlow <span class="text-indigo-400">Cloud</span></span>
             </div>
-            <nav class="p-6 flex flex-col h-full space-y-3">
-                <div class="bg-indigo-600 p-4 rounded-2xl flex items-center gap-4 shadow-xl shadow-indigo-500/20 cursor-pointer">
-                    <i class="fas fa-th-large text-sm"></i> <span class="font-bold text-sm">Master Database</span>
-                </div>
-                <button onclick="logout()" class="p-4 rounded-2xl flex items-center gap-4 text-rose-400 hover:bg-rose-500/10 transition mt-auto">
-                    <i class="fas fa-sign-out-alt"></i> <span class="font-bold text-sm">Logout Admin</span>
+            <nav class="p-6 flex flex-col gap-4">
+                <button onclick="showSection('master')" id="btnMaster" class="p-4 rounded-2xl bg-indigo-600 flex items-center gap-4 shadow-xl shadow-indigo-500/20">
+                    <i class="fas fa-th-large"></i> <span class="font-bold text-sm">Master Database</span>
+                </button>
+                <button onclick="showSection('report')" id="btnReport" class="p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4 transition text-slate-400">
+                    <i class="fas fa-clipboard-list"></i> <span class="font-bold text-sm">Laporan Hasil User</span>
                 </button>
             </nav>
         </aside>
 
         <div class="flex-1 flex flex-col overflow-hidden">
-            <header class="glass-header px-10 py-8 border-b border-slate-200 flex justify-between items-center sticky top-0 z-20">
+            <header class="bg-white/80 backdrop-blur-md px-10 py-6 border-b border-slate-200 flex justify-between items-center">
                 <div>
-                    <h2 class="text-3xl font-extrabold text-[#1b2559] tracking-tight">Database Admin</h2>
-                    <p class="text-sm text-slate-400 font-medium uppercase tracking-tighter">Sinkronisasi Google Sheets Terdeteksi <span class="text-emerald-500 font-black">● LIVE</span></p>
+                    <h2 id="sectionTitle" class="text-2xl font-extrabold text-[#1b2559]">Master Database</h2>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Real-time Cloud Monitoring</p>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="fetchCloudData()" id="refreshBtn" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition active:scale-95">
-                        <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                    <button id="exportBtn" onclick="exportExcel()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg transition">
+                        <i class="fas fa-file-excel mr-2"></i> EXPORT EXCEL
                     </button>
-                    
-                    <input type="file" id="bulkImport" class="hidden" accept=".xlsx, .xls" onchange="processBulkExcel(event)">
-                    <button id="syncBtn" onclick="document.getElementById('bulkImport').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg transition active:scale-95">
-                        <i class="fas fa-cloud-upload-alt mr-2"></i> IMPORT & SYNC
+                    <button onclick="fetchCloudData()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg transition">
+                        <i class="fas fa-sync-alt mr-2"></i> REFRESH DATA
                     </button>
                 </div>
             </header>
 
             <main class="p-10 overflow-y-auto">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 text-center">
-                    <div class="bg-white p-8 rounded-[35px] shadow-sm border border-slate-100">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Produk</p>
-                        <h4 id="statTotal" class="text-4xl font-extrabold text-[#1b2559]">0</h4>
-                    </div>
-                    <div class="bg-white p-8 rounded-[35px] shadow-sm border border-slate-100 border-l-4 border-l-emerald-500">
-                        <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2">Stok Aman</p>
-                        <h4 id="statAman" class="text-4xl font-extrabold text-[#1b2559]">0</h4>
-                    </div>
-                    <div class="bg-white p-8 rounded-[35px] shadow-sm border border-slate-100 border-l-4 border-l-rose-500">
-                        <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-2">Kritis / Expired</p>
-                        <h4 id="statKritis" class="text-4xl font-extrabold text-[#1b2559]">0</h4>
-                    </div>
-                </div>
-
-                <div class="mb-8 relative group">
-                    <i class="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-indigo-500"></i>
-                    <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Cari Nama Produk atau Item ID..." class="w-full pl-16 pr-8 py-5 rounded-3xl border border-transparent shadow-sm bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none font-medium text-sm transition-all">
-                </div>
-
-                <div class="bg-white rounded-[40px] shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50/50 text-slate-400 text-[10px] font-black uppercase tracking-[2px]">
-                                    <th class="px-8 py-4">Item ID</th>
-                                    <th class="px-8 py-4">Nama Produk</th>
-                                    <th class="px-8 py-4 text-center">Stok</th>
-                                    <th class="px-8 py-4">Vendor</th>
-                                    <th class="px-8 py-4">Exp Date</th>
-                                    <th class="px-8 py-4 text-center">Status</th>
-                                </tr>
-                                <tr class="bg-slate-50 border-b border-slate-100">
-                                    <th class="px-4 py-2"><input type="text" id="fId" onkeyup="multiFilter()" placeholder="ID..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[11px] outline-none focus:ring-2 focus:ring-indigo-500"></th>
-                                    <th class="px-4 py-2"><input type="text" id="fNama" onkeyup="multiFilter()" placeholder="Cari Produk..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[11px] outline-none focus:ring-2 focus:ring-indigo-500"></th>
-                                    <th class="px-4 py-2"><input type="text" id="fStok" onkeyup="multiFilter()" placeholder="Qty..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[11px] outline-none focus:ring-2 focus:ring-indigo-500 text-center"></th>
-                                    <th class="px-4 py-2"><input type="text" id="fVendor" onkeyup="multiFilter()" placeholder="Filter Vendor..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[11px] outline-none focus:ring-2 focus:ring-indigo-500"></th>
-                                    <th class="px-4 py-2"><input type="text" id="fExp" onkeyup="multiFilter()" placeholder="Filter Tgl..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[11px] outline-none focus:ring-2 focus:ring-indigo-500"></th>
-                                    <th class="px-4 py-2 text-center text-[10px] text-slate-300 font-bold uppercase">Reset</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableBody" class="text-sm divide-y divide-slate-100 font-medium">
-                                </tbody>
-                        </table>
-                    </div>
+                <div class="bg-white rounded-[40px] shadow-sm border border-slate-100 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 border-b border-slate-100">
+                            <tr class="text-slate-400 text-[10px] font-black uppercase tracking-[2px]">
+                                <th class="px-8 py-5">Item ID</th>
+                                <th class="px-8 py-5">Nama Produk</th>
+                                <th class="px-8 py-5 text-center">Stok</th>
+                                <th class="px-8 py-5">Vendor</th>
+                                <th class="px-8 py-5">Expired</th>
+                                <th class="px-8 py-5 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="text-sm divide-y divide-slate-50 font-medium">
+                            </tbody>
+                    </table>
                 </div>
             </main>
         </div>
     </div>
 
     <script>
-        // CONFIG API ANDA
         const API_URL = 'https://sheetdb.io/api/v1/n42lfid7z6tlv';
         let allProducts = [];
+        let currentMode = 'master'; // master atau report
 
-        // 1. LOGIN SYSTEM
-        document.getElementById('loginForm').onsubmit = (e) => {
-            e.preventDefault();
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
+        async function fetchCloudData() {
+            try {
+                const res = await fetch(API_URL);
+                allProducts = await res.json();
+                renderTable();
+            } catch (err) { console.error(err); }
+        }
 
-            if(u === 'admin' && p === 'admin123') {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-                setTimeout(() => document.getElementById('mainContent').style.opacity = "1", 50);
-                fetchCloudData();
+        function showSection(mode) {
+            currentMode = mode;
+            document.getElementById('sectionTitle').innerText = mode === 'master' ? 'Master Database' : 'Laporan Hasil Input User';
+            
+            // Toggle Button Colors
+            const bMaster = document.getElementById('btnMaster'), bReport = document.getElementById('btnReport');
+            const exportBtn = document.getElementById('exportBtn');
+
+            if(mode === 'master') {
+                bMaster.className = "p-4 rounded-2xl bg-indigo-600 flex items-center gap-4 text-white shadow-xl shadow-indigo-500/20";
+                bReport.className = "p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4 text-slate-400";
+                exportBtn.classList.add('hidden');
             } else {
-                document.getElementById('loginError').classList.remove('hidden');
-                document.getElementById('loginForm').classList.add('animate-pulse');
-                setTimeout(() => document.getElementById('loginForm').classList.remove('animate-pulse'), 500);
+                bReport.className = "p-4 rounded-2xl bg-indigo-600 flex items-center gap-4 text-white shadow-xl shadow-indigo-500/20";
+                bMaster.className = "p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4 text-slate-400";
+                exportBtn.classList.remove('hidden');
             }
-        };
+            renderTable();
+        }
 
-        // AMBIL DATA DARI CLOUD DENGAN EFEK REFRESH
-async function fetchCloudData() {
-    const icon = document.getElementById('refreshIcon');
-    const btn = document.getElementById('refreshBtn');
-
-    // Mulai Animasi Putar
-    icon.classList.add('fa-spin');
-    btn.classList.add('opacity-50', 'pointer-events-none');
-
-    try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        allProducts = data;
-        renderTable(allProducts);
-        
-        // Opsional: Beri log di console untuk memastikan data terbaru
-        console.log("Data refreshed at: " + new Date().toLocaleTimeString());
-    } catch (err) {
-        alert("Gagal mengambil data terbaru!");
-        console.error(err);
-    } finally {
-        // Berhenti Animasi (Beri jeda sedikit agar transisinya halus)
-        setTimeout(() => {
-            icon.classList.remove('fa-spin');
-            btn.classList.remove('opacity-50', 'pointer-events-none');
-        }, 500);
-    }
-}
-
-        // 3. RENDER TABLE WITH SMART MAPPING
-        function renderTable(data) {
+        function renderTable() {
             const tbody = document.getElementById('tableBody');
-            let sTotal = data.length, sAman = 0, sKritis = 0;
+            let data = [...allProducts];
 
-            if(!data || data.length === 0 || data.error) {
-                tbody.innerHTML = `<tr><td colspan="6" class="px-10 py-20 text-center text-slate-300">Database Kosong. Silakan Sinkron Excel.</td></tr>`;
-                return;
+            // Filter jika masuk mode report (Hanya yang sudah ada tanggalnya)
+            if (currentMode === 'report') {
+                data = data.filter(i => {
+                    const ex = i.tgl_expired || i.TglExpired || "";
+                    return ex !== "" && ex !== "-";
+                });
             }
 
-            tbody.innerHTML = data.map(item => {
-                // Fungsi pencari kunci yang fleksibel (Besar/Kecil Huruf)
-                const getValue = (keys) => {
-                    for (let k of keys) {
-                        if (item[k] !== undefined && item[k] !== null) return item[k];
-                    }
-                    return null;
-                };
-
-                const id = getValue(['item_id', 'ItemID', 'ID', 'id']) || "-";
-                const nama = getValue(['produk', 'Produk', 'nama', 'Nama']) || "Produk N/A";
-                const stok = parseInt(getValue(['stok', 'Stok', 'jumlah', 'Jumlah']) || 0);
-                const vend = getValue(['vendor', 'Vendor', 'Pemasok']) || "-";
-                const exp = getValue(['tgl_expired', 'TglExpired', 'expired', 'Expired']) || "-";
-
-                const isExp = exp !== "-" && new Date(exp) < new Date();
-                const isLow = stok < 10 || isExp;
-                
-                isLow ? sKritis++ : sAman++;
-
-                return `
-                    <tr class="hover:bg-slate-50 transition-all duration-200">
-                        <td class="px-10 py-6 font-bold text-indigo-600 tracking-tighter">#${id}</td>
-                        <td class="px-10 py-6 font-extrabold text-[#1b2559]">${nama}</td>
-                        <td class="px-10 py-6 text-center font-black text-xl text-indigo-700">${stok}</td>
-                        <td class="px-10 py-6 text-slate-500 font-semibold">${vend}</td>
-                        <td class="px-10 py-6 font-bold ${isExp ? 'text-rose-500' : 'text-slate-400'}">${exp}</td>
-                        <td class="px-10 py-6 text-center">
-                            <span class="px-4 py-2 rounded-full text-[9px] font-black tracking-widest uppercase ${isLow ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}">
-                                ${isLow ? 'KRITIS / EXP' : 'STOK AMAN'}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-
-            document.getElementById('statTotal').innerText = sTotal;
-            document.getElementById('statAman').innerText = sAman;
-            document.getElementById('statKritis').innerText = sKritis;
+            tbody.innerHTML = data.map(i => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="px-8 py-5 font-bold text-indigo-600">#${i.item_id || i.ItemID}</td>
+                    <td class="px-8 py-5 font-extrabold text-[#1b2559]">${i.produk || i.Produk}</td>
+                    <td class="px-8 py-5 text-center font-black text-xl">${i.stok || i.Stok}</td>
+                    <td class="px-8 py-5 text-slate-500">${i.vendor || i.Vendor || '-'}</td>
+                    <td class="px-8 py-5 font-bold ${i.tgl_expired === '-' ? 'text-amber-500' : 'text-slate-900'}">${i.tgl_expired || i.TglExpired || '-'}</td>
+                    <td class="px-8 py-5 text-center">
+                        <span class="px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase ${parseInt(i.stok) < 10 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}">
+                            ${parseInt(i.stok) < 10 ? 'KRITIS' : 'AMAN'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        // 4. SYNC EXCEL TO CLOUD
-        async function processBulkExcel(event) {
-            const btn = document.getElementById('syncBtn');
-            const file = event.target.files[0];
-            const reader = new FileReader();
+        function exportExcel() {
+            const dataToExport = allProducts.filter(i => {
+                const ex = i.tgl_expired || i.TglExpired || "";
+                return ex !== "" && ex !== "-";
+            });
 
-            btn.innerHTML = '<i class="fas fa-sync fa-spin mr-2"></i> SYNCING...';
-            btn.classList.add('opacity-50', 'pointer-events-none');
+            if(dataToExport.length === 0) { alert("Tidak ada data untuk diekspor!"); return; }
 
-            reader.onload = async (e) => {
-                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-
-                try {
-                    // Step 1: Wipe Cloud Data
-                    await fetch(API_URL + '/all', { method: 'DELETE' });
-
-                    // Step 2: Post New Data
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ "data": json })
-                    });
-
-                    if(response.ok) {
-                        alert("Database Pusat Berhasil Diperbarui!");
-                        fetchCloudData();
-                    }
-                } catch (err) {
-                    alert("Error Koneksi Cloud!");
-                } finally {
-                    btn.innerHTML = '<i class="fas fa-cloud-upload-alt mr-2"></i> IMPORT & SYNC';
-                    btn.classList.remove('opacity-50', 'pointer-events-none');
-                }
-            };
-            reader.readAsArrayBuffer(file);
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Audit User");
+            XLSX.writeFile(workbook, "StockFlow_Laporan_Audit_" + new Date().toLocaleDateString() + ".xlsx");
         }
 
-        // FUNGSI FILTER MULTI-KOLOM (SMART SEARCH)
-function multiFilter() {
-    // Ambil nilai dari semua input filter
-    const filters = {
-        item_id: document.getElementById('fId').value.toLowerCase(),
-        produk: document.getElementById('fNama').value.toLowerCase(),
-        stok: document.getElementById('fStok').value.toLowerCase(),
-        vendor: document.getElementById('fVendor').value.toLowerCase(),
-        tgl_expired: document.getElementById('fExp').value.toLowerCase()
-    };
-
-    // Lakukan filter pada data utama
-    const filteredData = allProducts.filter(item => {
-        // Logika AND: Semua kondisi filter harus terpenuhi (true)
-        return Object.keys(filters).every(key => {
-            // Mencari kecocokan terlepas dari nama kolom di Google Sheets (Smart Mapping)
-            const getVal = (item, key) => {
-                if (key === 'item_id') return item.item_id || item.ItemID || "";
-                if (key === 'produk') return item.produk || item.Produk || "";
-                if (key === 'stok') return item.stok || item.Stok || "";
-                if (key === 'vendor') return item.vendor || item.Vendor || "";
-                if (key === 'tgl_expired') return item.tgl_expired || item.TglExpired || "";
-                return "";
-            };
-
-            const itemValue = String(getVal(item, key)).toLowerCase();
-            return itemValue.includes(filters[key]);
-        });
-    });
-
-    // Render ulang tabel dengan hasil filter
-    renderTable(filteredData);
-}
-        function logout() { location.reload(); }
-
-        // Auto-refresh setiap 60 detik (60000 milidetik)
-setInterval(fetchCloudData, 60000);
+        fetchCloudData();
     </script>
 </body>
 </html>
