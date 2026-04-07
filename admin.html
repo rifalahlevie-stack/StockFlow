@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StockFlow Admin - Clean Edition</title>
+    <title>StockFlow Admin - Pro Diagnostic</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -19,10 +19,10 @@
         <aside class="w-80 sidebar-bg text-white flex flex-col shadow-2xl">
             <div class="p-8 border-b border-white/10 flex items-center gap-3">
                 <div class="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-database"></i></div>
-                <span class="text-xl font-bold tracking-tight">StockFlow <span class="text-indigo-400">Admin</span></span>
+                <span class="text-xl font-bold tracking-tight italic">StockFlow <span class="text-indigo-400">Cloud</span></span>
             </div>
             <nav class="p-6 flex flex-col gap-4">
-                <button onclick="showSection('master')" id="btnMaster" class="p-4 rounded-2xl bg-indigo-600 flex items-center gap-4 shadow-xl shadow-indigo-500/20 text-white">
+                <button onclick="showSection('master')" id="btnMaster" class="p-4 rounded-2xl bg-indigo-600 flex items-center gap-4 shadow-xl shadow-indigo-500/20 text-white transition-all">
                     <i class="fas fa-boxes"></i> <span class="font-bold text-sm">Master Database</span>
                 </button>
                 <button onclick="showSection('report')" id="btnReport" class="p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4 transition text-slate-400">
@@ -35,14 +35,14 @@
             <header class="bg-white/80 backdrop-blur-md px-10 py-8 border-b border-slate-200 flex justify-between items-center">
                 <div>
                     <h2 id="sectionTitle" class="text-3xl font-extrabold text-[#1b2559]">Master Database</h2>
-                    <p id="sectionDesc" class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Manajemen Stok & Inventaris Utama</p>
+                    <p id="sectionDesc" class="text-[10px] text-slate-400 font-black uppercase tracking-[2px] mt-1">Real-time Inventory Monitor</p>
                 </div>
                 <div class="flex gap-3">
                     <button id="exportBtn" onclick="exportExcel()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-lg transition active:scale-95">
-                        <i class="fas fa-download mr-2"></i> EXPORT LAPORAN
+                        <i class="fas fa-download mr-2"></i> EXPORT EXCEL
                     </button>
                     <button onclick="fetchCloudData()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-lg transition active:scale-95">
-                        <i class="fas fa-sync-alt mr-2"></i> REFRESH
+                        <i class="fas fa-sync-alt mr-2"></i> REFRESH DATA
                     </button>
                 </div>
             </header>
@@ -52,8 +52,8 @@
                     <table class="w-full text-left">
                         <thead id="tableHead" class="bg-slate-50 border-b border-slate-100">
                             </thead>
-                        <tbody id="tableBody" class="text-sm divide-y divide-slate-50 font-medium text-slate-600">
-                            <tr><td colspan="6" class="px-8 py-20 text-center opacity-30 italic">Memuat data dari cloud...</td></tr>
+                        <tbody id="tableBody" class="text-sm divide-y divide-slate-50 font-medium">
+                            <tr><td colspan="6" class="px-8 py-20 text-center text-slate-400 italic">Mencoba menarik data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -66,12 +66,38 @@
         let allProducts = [];
         let currentMode = 'master'; 
 
+        // FUNGSI PINTAR UNTUK MENDETEKSI NAMA KOLOM (ANTI-Gagal)
+        function smartGet(obj, keys) {
+            // Cek setiap kemungkinan nama kolom
+            for (let k of keys) {
+                if (obj[k] !== undefined && obj[k] !== null) return obj[k];
+            }
+            // Jika tidak ketemu, coba cari kolom yang mengandung kata kunci (Case Insensitive)
+            const objKeys = Object.keys(obj);
+            for (let ok of objKeys) {
+                for (let k of keys) {
+                    if (ok.toLowerCase().replace(/[\s_]/g, '') === k.toLowerCase().replace(/[\s_]/g, '')) {
+                        return obj[ok];
+                    }
+                }
+            }
+            return "-";
+        }
+
         async function fetchCloudData() {
             try {
                 const res = await fetch(API_URL);
-                allProducts = await res.json();
+                const data = await res.json();
+                
+                // Pastikan data yang diterima adalah Array
+                allProducts = Array.isArray(data) ? data : [];
+                console.log("Data diterima:", allProducts); // Cek di Console F12
+                
                 renderTable();
-            } catch (err) { console.error("Gagal mengambil data:", err); }
+            } catch (err) { 
+                alert("Koneksi Error. Pastikan Google Sheets di-share 'Anyone with the link'!");
+                console.error(err); 
+            }
         }
 
         function showSection(mode) {
@@ -84,12 +110,97 @@
 
             if(mode === 'master') {
                 title.innerText = 'Master Database';
-                desc.innerText = 'Manajemen Stok & Inventaris Utama';
+                desc.innerText = 'Real-time Inventory Monitor';
                 exportBtn.classList.add('hidden');
-                btnM.className = "p-4 rounded-2xl bg-indigo-600 flex items-center gap-4 shadow-xl shadow-indigo-500/20 text-white";
+                btnM.className = "p-4 rounded-2xl bg-indigo-600 flex items-center gap-4 text-white shadow-xl shadow-indigo-500/20";
                 btnR.className = "p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4 transition text-slate-400";
             } else {
                 title.innerText = 'Laporan Hasil Input User';
-                desc.innerText = 'Data Produk yang Sudah Di-Audit Staf';
+                desc.innerText = 'Hasil Audit & Input Tanggal Expired';
                 exportBtn.classList.remove('hidden');
-                btnR.className = "p-4 rounded-2xl bg
+                btnR.className = "p-4 rounded-2xl bg-indigo-600 flex items-center gap-4 text-white shadow-xl shadow-indigo-500/20";
+                btnM.className = "p-4 rounded-2xl hover:bg-white/5 flex items-center gap-4 transition text-slate-400";
+            }
+            renderTable();
+        }
+
+        function renderTable() {
+            const thead = document.getElementById('tableHead');
+            const tbody = document.getElementById('tableBody');
+            
+            // Filter data untuk Laporan (Hanya yang sudah ada tanggal)
+            let dataToShow = [...allProducts];
+            if (currentMode === 'report') {
+                dataToShow = dataToShow.filter(i => {
+                    const ex = smartGet(i, ['tgl_expired', 'expired', 'tgl_kadaluarsa', 'exp_date']);
+                    return ex !== "" && ex !== "-" && ex !== null;
+                });
+            }
+
+            // Set Header Dinamis
+            if (currentMode === 'master') {
+                thead.innerHTML = `
+                    <tr class="text-slate-400 text-[10px] font-black uppercase tracking-[2px]">
+                        <th class="px-8 py-5">Item ID</th>
+                        <th class="px-8 py-5">Nama Produk</th>
+                        <th class="px-8 py-5 text-center">Stok Gudang</th>
+                        <th class="px-8 py-5">Vendor</th>
+                        <th class="px-8 py-5 text-center">Status</th>
+                    </tr>`;
+            } else {
+                thead.innerHTML = `
+                    <tr class="text-slate-400 text-[10px] font-black uppercase tracking-[2px]">
+                        <th class="px-8 py-5">Item ID</th>
+                        <th class="px-8 py-5">Nama Produk</th>
+                        <th class="px-8 py-5 text-center">Hasil Stok</th>
+                        <th class="px-8 py-5 text-indigo-600 font-black">Tanggal Expired</th>
+                        <th class="px-8 py-5 text-center">Status</th>
+                    </tr>`;
+            }
+
+            if (dataToShow.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-8 py-32 text-center text-slate-300 italic">Tidak ada data ditemukan di tab ini.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = dataToShow.map(i => {
+                // Mapping cerdas untuk setiap kolom
+                const id = smartGet(i, ['item_id', 'id', 'itemid', 'kode_barang']);
+                const nama = smartGet(i, ['produk', 'nama', 'product', 'item_name']);
+                const stok = parseInt(smartGet(i, ['stok', 'jumlah', 'qty', 'stock'])) || 0;
+                const vendor = smartGet(i, ['vendor', 'supplier', 'pemasok']);
+                const exp = smartGet(i, ['tgl_expired', 'expired', 'tgl_kadaluarsa']);
+
+                return `
+                <tr class="hover:bg-slate-50/50 transition border-b border-slate-50">
+                    <td class="px-8 py-5 font-bold text-indigo-600 tracking-tighter">#${id}</td>
+                    <td class="px-8 py-5 font-extrabold text-[#1b2559] uppercase">${nama}</td>
+                    <td class="px-8 py-5 text-center font-black text-xl text-slate-700">${stok}</td>
+                    ${currentMode === 'master' ? `<td class="px-8 py-5 font-bold text-slate-400">${vendor}</td>` : `<td class="px-8 py-5 font-bold text-indigo-600 bg-indigo-50/30">${exp}</td>`}
+                    <td class="px-8 py-5 text-center">
+                        <span class="px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase ${stok < 10 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}">
+                            ${stok < 10 ? 'KRITIS' : 'AMAN'}
+                        </span>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function exportExcel() {
+            const reportData = allProducts.filter(i => {
+                const ex = smartGet(i, ['tgl_expired', 'expired']);
+                return ex !== "" && ex !== "-";
+            });
+
+            if(reportData.length === 0) { alert("Data laporan kosong!"); return; }
+
+            const ws = XLSX.utils.json_to_sheet(reportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Laporan Audit");
+            XLSX.writeFile(wb, `Laporan_Audit_${new Date().toLocaleDateString()}.xlsx`);
+        }
+
+        fetchCloudData();
+    </script>
+</body>
+</html>
